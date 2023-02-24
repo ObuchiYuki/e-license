@@ -25,6 +25,7 @@ class ClassNotifier:
     def notify(self, updates: list[Frame]):
         message = "、".join(map(self.format_frame, updates)) 
         title = "新しい予約が可能になりました。"
+        self.logger.log(f"{title}: {message}")
         self.notifier.notify(title, message, self.config.loginurl)
 
     def notifier_for_platform(self) -> Notifier:
@@ -50,9 +51,10 @@ class MacOSNotifier(Notifier):
             logger.error("terminal-notifier not found. Please install via brew. Using osascript as fallback.")
 
     def notify(self, title: str, message: str, link: str):
+        print(self.terminal_notifier)
         if self.terminal_notifier:
             os.system(f"""
-                terminal-notifier -title {title} -message {message} -open {link}
+                terminal-notifier -title "{title}" -message "{message}" -open "{link}"
             """)
         else:
             os.system(f"""
