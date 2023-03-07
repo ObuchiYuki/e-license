@@ -18,7 +18,7 @@ from School.BookTableScanner import BookTableScanner
 
 from School.CommandConfiguration import CommandConfiguration
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 class DriveSchoolCommand:
     command_name: str
@@ -37,6 +37,8 @@ class DriveSchoolCommand:
         subparsers = parser.add_subparsers()
 
         fetch_command = subparsers.add_parser("fetch")
+        fetch_command.add_argument("--show-table", action="store_true", help="show table")
+        fetch_command.add_argument("--notify", action="store_true", help="show notification when found frames.")
         fetch_command.set_defaults(handler=self.run_fetch)
         
         reset_command = subparsers.add_parser("reset")
@@ -44,15 +46,18 @@ class DriveSchoolCommand:
 
         res = parser.parse_args(args)
         if hasattr(res, "handler"):
-            res.handler(args)
+            res.handler(res)
         else:
             parser.print_help()
 
-    def run_reset(self, args: list[str]):
+    def run_reset(self, res: Namespace):
         frame_io = FrameIOManager(self.filemanager)
         frame_io.reset_cache()
 
-    def run_fetch(self, args: list[str]):
+    def run_fetch(self, res: Namespace):
+        show_table: bool = res.show_table or False
+        notify: bool = res.notify or False
+        
         driver = selenium_make()
         loader = CatalystLoader(driver, self.logger)
         login_catalyst = LoginCatalyst(self.config, loader)
@@ -60,12 +65,16 @@ class DriveSchoolCommand:
         
         book_table = booktable_catalyst.run()
         frame_io = FrameIOManager(self.filemanager)
+
+        if show_table:
+            print(book_table)
         
         scanner = BookTableScanner(frame_io, book_table, self.logger)
         updated_frames = scanner.find_updated_frames()
+        self.logger.log(f"Found new frames {updated_frames}")
         
         notifier = ClassNotifier(self.config, self.logger)
-        if len(updated_frames) > 0:
+        if notify and len(updated_frames) > 0:
             notifier.notify(updated_frames)
         else:
             self.logger.log("No updated frame found.")

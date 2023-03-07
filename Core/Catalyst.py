@@ -13,7 +13,7 @@ def selenium_make(window_size: tuple[int, int] = (1201, 1001)) -> WebDriver:
     options = webdriver.ChromeOptions()
     
     options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36')
-    options.add_argument("--user-data-dir=/Users/yuki/Developer/ChromeData")
+    # options.add_argument("--user-data-dir=/Users/yuki/Developer/ChromeData")
     
     driver = uc.Chrome(options=options, headless=True)
     driver.set_window_size(window_size[0], window_size[1])

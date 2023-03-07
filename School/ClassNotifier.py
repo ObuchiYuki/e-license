@@ -1,7 +1,6 @@
 import os
+from pathlib import Path
 from sys import platform
-import distutils.spawn
-from enum import Enum
 
 from Core.Logger import Logger
 
@@ -45,7 +44,7 @@ class MacOSNotifier(Notifier):
     terminal_notifier: bool
 
     def __init__(self, logger: Logger) -> None:
-        tf_found = distutils.spawn.find_executable("terminal-notifier") is not None
+        tf_found = Path("/usr/local/bin/terminal-notifier").exists()
         self.terminal_notifier = tf_found
         if not tf_found:
             logger.error("terminal-notifier not found. Please install via brew. Using osascript as fallback.")
@@ -54,7 +53,7 @@ class MacOSNotifier(Notifier):
         print(self.terminal_notifier)
         if self.terminal_notifier:
             os.system(f"""
-                terminal-notifier -title "{title}" -message "{message}" -open "{link}"
+                /usr/local/bin/terminal-notifier -title "{title}" -message "{message}" -open "{link}"
             """)
         else:
             os.system(f"""

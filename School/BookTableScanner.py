@@ -15,8 +15,6 @@ class BookTableScanner:
 
     def find_updated_frames(self) -> list[Frame]:
         new_frames = self.looks_good()
-        self.logger.log(f"Found new frames {new_frames}")
-        
         updated_frames = self.frame_io.find_new_frames(new_frames)
         return updated_frames
 
